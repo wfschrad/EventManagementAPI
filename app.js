@@ -37,6 +37,7 @@ app.use('/api', graphQLAPI({
             description: String!
             price: Float!
             date: String!
+            creator: String!
         }
 
 
@@ -85,13 +86,17 @@ app.use('/api', graphQLAPI({
                 description: eventInput.description,
                 price: +eventInput.price,
                 date: new Date(eventInput.date),
-                creator: '5c0f'
+                creator: '5eb0ef7e2025d91696560ed5'
             });
             try {
-                const res = await event.save();
-                console.log('createEventRes', res);
-                const creator = await User.findById
-                return res;
+                const eventRes = await event.save();
+                const creator = await User.findById('5eb0ef7e2025d91696560ed5')//temp hard-code
+
+                if (!creator) throw new Error('No creator user');
+
+                creator.createdEvents.push(event);
+                const creatorRes = await creator.save();
+                return eventRes;
             } catch (e) {
                 console.log(e)
                 throw e;
